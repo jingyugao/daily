@@ -47,11 +47,15 @@ cell的机器属于一个*cluster*。一个*cluster*处于一个*datacenter buil
 一个*job*只在一个*cell*中运行。Borg没有使用VM机制，没有*virtualization*的开销。因为设计borg的时候还没有硬件支持虚拟化。
 job下的每个task的配置基本上都一样，但可以有不同的比如 command-line flag。
 用户可以在*job*运行的时候改变部分或者全部*tasks*的属性。用户发布新的job configuration，然后使Borg更新tasks。这是轻量级的非原子的事务，结束之前可以撤销。更新是滚动的，可以限制更新过程中被中断(调度或抢占）的数量。如果某个变更导致数量超出，这个变更会被跳过。
+一些更新需要任务重启。一些更新可能会使task不再适合机器，导致task停止和重新调度。有的更新可能不需要重启或者移动task。
+### Allocs
+Borg的*alloc*是某台机器上一组保留的资源配额，用来让一个或者多个task跑。这些资源无论是否被使用，都一直保留。
 
 
 
-
-
+Reference：
+https://pdos.csail.mit.edu/6.824/papers/borg.pdf
+https://www.lagou.com/lgeduarticle/74124.html
 
 
 
