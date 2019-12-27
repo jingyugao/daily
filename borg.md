@@ -43,7 +43,14 @@ cell的机器属于一个*cluster*。一个*cluster*处于一个*datacenter buil
 
 ### Jobs and tasks
 一个*job*的属性包括`name`,`owner`和`task number`。*
-总之谷歌的机器非常多。机房特别多。处理器种类多，各种硬件应有尽有。*job*可以*
+总之谷歌的机器非常多。机房特别多。处理器种类多，各种硬件应有尽有。*job*可以约束*task*的一些特别的属性例如os版本，ip地址等。
+一个*job*只在一个*cell*中运行。Borg没有使用VM机制，没有*virtualization*的开销。因为设计borg的时候还没有硬件支持虚拟化。
+job下的每个task的配置基本上都一样，但可以有不同的比如 command-line flag。
+用户可以在*job*运行的时候改变部分或者全部*tasks*的属性。用户发布新的job configuration，然后使Borg更新tasks。这是轻量级的非原子的事务，结束之前可以撤销。更新是滚动的，可以限制更新过程中被中断(调度或抢占）的数量。如果某个变更导致数量超出，这个变更会被跳过。
+
+
+
+
 
 
 
