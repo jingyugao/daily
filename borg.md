@@ -81,10 +81,40 @@ Borg提供了“Borg name service”（BNS），包括cell名，job名，和task
 当一个job提交以后，borgmaster记录到pasos store并加入到pending queue。scheduler异步扫描这个队列，把task分配到资源合适的机器上。scheduler的对象是task而不是job。调度算法有两部分：feasibility checking和scoring，前者用于找到合适的机器，后者从中选出一个。
   TODO：具体的调度算法
 
+### Borglet
+每台机器上都有一个Borglet，它负责启动/停止task，通过os设置管理资源，滚动debug日志，给borgmaster或其他监控系统汇报机器状态。
+  Borgmaster对每个Borglet隔几秒poll一次，获取机器当前状态并发送未完成的请求。可以控制通信的频率，从而不需要显式的流量控制机制，也阻止了重启风暴。
+
+### Scalability
+* replicated
+* 拆分服务（Borg的基础服务）
+* cacheing
+* 等价类，减少计算次数。
+* 随机化。
+
+### Availability
+* 自动重新调度被驱逐的task
+* 部署task到不同的机器、机架、电力区域。减少相关性故障。
+* 当机器保养或os更新时，限制task的数量和中断率，避免所有task都停止。
+* 使用declarative desired-state representations(see [3])和idempotent mutating operations（幂等操作)。失败的的client可以无副作用的提交所有忘记的请求。
+* 当机器上不可达时，对寻找新的地方去运行task的操作限流，因为无法区分机器故障还是网络分区。(例如，网络分区导致30%的机器无法访问，那么重新调度这些机器上的task会导致更大的问题）
+* 如果task::machine发生了故障，下次调度不要把这个task分配到这台machine上。
+* TODO：recovers critical intermediate data written to local disk by
+repeatedly re-running a logsaver task (§2.4), even if the alloc it was attached to is terminated or moved to another machine. Users can set how long the system keeps trying; a few days is common.
+
+## Utilization
+
+
+
+
+
+
+
 
 Reference：
-https://pdos.csail.mit.edu/6.824/papers/borg.pdf
-https://www.lagou.com/lgeduarticle/74124.html
+[1] https://pdos.csail.mit.edu/6.824/papers/borg.pdf
+[2] https://www.lagou.com/lgeduarticle/74124.html
+[3] https://medium.com/@dominik.tornow/imperative-vs-declarative-8abc7dcae82e
 
 
 
