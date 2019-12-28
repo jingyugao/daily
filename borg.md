@@ -64,8 +64,22 @@ Borg为不同的用途定义了不重叠的优先级段。包括*monitoring*，*
  
 ### Naming and monitoring
 Borg提供了“Borg name service”（BNS），包括cell名，job名，和task序号。Borg把task的hostname和port写入Chunbby。例如某个用户ubar在cell cc的job jfoo的第50个task，可以通过"50.jfoo.ubar.cc.borg.google.com"访问。Borg还写了job size和task健康信息，用来提供负载均衡信息。
+  几乎每个task都包含一个内置的http服务用于发布健康状况以及性能metrics。Borg监控health-check URL，如果http返回错误或无返回，重启task。
+  Sigma服务提供了UI界面，可以监控用户所有的job，检查资源使用情况，日志，执行天数和最终的状况。我们的应用产生冗长的日志，自动rotated避免用尽磁盘空间，task退出后也会停留一段时间方便调试。如果一个job没有运行，borg会提供一个“why pending”的注释，和如何更改job的资源需求的指导。
+  Borg记录了所有的job提交和task事件。这些数据用于cluster workload trace。
+ 
+## Borg architecture
+一个Borg cell包括一堆机器，一个叫做*Borgmaster*的逻辑中心控制节点，和一个跑在每台机器上的叫做*Borglet*的代理进程。Borg的每个部分都是C++编写的。
 
-
+### Borgmaster
+每个cell的Borgmaster都包括两个进程，主进程和独立的schedule进程。主进程处理rpc请求，管理状态机，连接Borglet，并提供一个Sigma备用的web UI。
+  Borgmaster是一个逻辑上的单进场，实际上有5个replicated。每个replica都在内存中储存了cell的大多数状态，这些状态记录在了一个基于paxos的磁盘储存中。一个elected master即是paxos leader又是stat mutator(处理变更请求)。
+  某个时间点的Borgmaster的状态称为一个*checkpoint*，周期性的记录snapshot和change log到paxos store。（类似于raft里面的snapshot）
+  一个称作*Fauxmaster*的高仿真的Borgmaster模拟器，包含了borgmaster的所有代码，可以读取checkpoint文件，主要用于调试和故障修复。
+ 
+### Scheduling
+当一个job提交以后，borgmaster记录到pasos store并加入到pending queue。scheduler异步扫描这个队列，把task分配到资源合适的机器上。scheduler的对象是task而不是job。调度算法有两部分：feasibility checking和scoring，前者用于找到合适的机器，后者从中选出一个。
+  TODO：具体的调度算法
 
 
 Reference：
