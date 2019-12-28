@@ -50,8 +50,15 @@ job下的每个task的配置基本上都一样，但可以有不同的比如 com
 一些更新需要任务重启。一些更新可能会使task不再适合机器，导致task停止和重新调度。有的更新可能不需要重启或者移动task。
 ### Allocs
 Borg的*alloc*是某台机器上一组保留的资源配额，用来让一个或者多个task跑。这些资源无论是否被使用，都一直保留。
-
-
+*Allocs*可以用于为未来的任务保留资源，*task*重启期间，这些资源依然保留。
+  一个*alloc set*类似一个*job*。是一组在不同机器上的*alloc*。
+ 
+### Priority, quota, and admission control
+当任务过多怎么办。对应的策略是*priority*和*quota*(优先级和限额）。
+   每个job都有一个*priority*。高优先级的task可以通过牺牲低优先级的task来获得资源，即使稍后要被抢占或者杀死。
+Borg为不同的用途定义了不重叠的优先级段。包括*monitoring*，*prod*，*batch*和*best effort*（测试或者无要求的任务）
+  尽管一个被抢占的*task*通常会在*cell*的其他地方继续运行，但是有可能发生*preemption cascades*。一个高优先级的task抢占了较低的task，这个task又抢占了另一个更低的task。为了降低这种情况，禁止*prod*优先级的任务相互枪战。
+  
 
 Reference：
 https://pdos.csail.mit.edu/6.824/papers/borg.pdf
