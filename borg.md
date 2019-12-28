@@ -58,7 +58,15 @@ Borg的*alloc*是某台机器上一组保留的资源配额，用来让一个或
    每个job都有一个*priority*。高优先级的task可以通过牺牲低优先级的task来获得资源，即使稍后要被抢占或者杀死。
 Borg为不同的用途定义了不重叠的优先级段。包括*monitoring*，*prod*，*batch*和*best effort*（测试或者无要求的任务）
   尽管一个被抢占的*task*通常会在*cell*的其他地方继续运行，但是有可能发生*preemption cascades*。一个高优先级的task抢占了较低的task，这个task又抢占了另一个更低的task。为了降低这种情况，禁止*prod*优先级的任务相互枪战。
-  
+  *Priority*对task来说相当重要，决定task运行还是等待。*Quota*用于决定哪个job被调度。*Quota*的表达形式是某个priiority对应的资源权重向量。权重决定了一个job一段时间内可以请求的最大资源。*quota-checking*是权限控制的一部分。*quota*不足的job会在提交时被立刻拒绝。
+  高优先级的quota花费比低优先级的多。*prod-priority quota*受限于cell实际可用的资源。如果资源足够，那么prod-job就会投入运行。我们鼓励用户购买超额资源，许多用户买超额资源是为了应对规模增长。我们通过超额出售lower-priority的quota来应对。
+  Quota分配是独立于borg之外的，跟物理容量有关，不同的数据中心有不同的价格和容量。用户的jobs只有配额足够的时候才可以运行。
+ 
+### Naming and monitoring
+Borg提供了“Borg name service”（BNS），包括cell名，job名，和task序号。Borg把task的hostname和port写入Chunbby。例如某个用户ubar在cell cc的job jfoo的第50个task，可以通过"50.jfoo.ubar.cc.borg.google.com"访问。Borg还写了job size和task健康信息，用来提供负载均衡信息。
+
+
+
 
 Reference：
 https://pdos.csail.mit.edu/6.824/papers/borg.pdf
