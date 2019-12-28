@@ -112,9 +112,9 @@ repeatedly re-running a logsaver task (§2.4), even if the alloc it was attached
 
 
 # Reference：
-[1] https://pdos.csail.mit.edu/6.824/papers/borg.pdf
-[2] https://www.lagou.com/lgeduarticle/74124.html
-[3] https://medium.com/@dominik.tornow/imperative-vs-declarative-8abc7dcae82e
+[1] https://pdos.csail.mit.edu/6.824/papers/borg.pdf  
+[2] https://www.lagou.com/lgeduarticle/74124.html  
+[3] https://medium.com/@dominik.tornow/imperative-vs-declarative-8abc7dcae82e  
 
 
 
